@@ -54,6 +54,7 @@ def build_linear_program(analysis: Dict[str, Any]) -> Dict[str, Any]:
         weeks.append(_create_peaking_week(week, analysis))
 
     return {
+        "type": "strength",
         "periodization_model": "linear",
         "experience_level": "beginner",
         "goal": analysis.get("goal", "strength"),
@@ -137,6 +138,10 @@ def _get_available_days(analysis: Dict) -> List[str]:
     """
     time_constraint = analysis.get("constraints", {}).get("time_available", "")
 
+    # Handle None case
+    if time_constraint is None:
+        time_constraint = ""
+
     if "3" in time_constraint:
         return ["monday", "wednesday", "friday"]
     elif "4" in time_constraint:
@@ -209,12 +214,125 @@ def _get_linear_progression_rules() -> Dict[str, str]:
 
 
 def build_undulating_program(analysis: Dict[str, Any]) -> Dict[str, Any]:
-    """Build undulating periodization program for intermediate athletes.
+    """Build undulating (DUP) program for intermediate lifters.
 
-    Daily undulating periodization varies intensity and volume within each week.
-    Placeholder for future implementation.
+    Daily Undulating Periodization varies intensity within each week:
+    - Heavy day: 85% 1RM, 3-5 reps
+    - Medium day: 75% 1RM, 6-8 reps
+    - Light day: 60% 1RM, 10-12 reps
+
+    This allows intermediate athletes to train multiple qualities simultaneously.
     """
-    return {"type": "undulating", "status": "placeholder"}
+    weeks = []
+
+    for week_num in range(1, 13):
+        if week_num % 4 == 0:
+            weeks.append(_create_dup_deload_week(week_num, analysis))
+        else:
+            weeks.append(_create_dup_week(week_num, analysis))
+
+    return {
+        "type": "strength",
+        "periodization_model": "undulating",
+        "experience_level": "intermediate",
+        "goal": analysis.get("goal", "strength"),
+        "weekly_pattern": {
+            "monday": "heavy",
+            "wednesday": "medium",
+            "friday": "light"
+        },
+        "weeks": weeks,
+        "progression_rules": _get_dup_progression_rules(),
+        "deload_schedule": [4, 8],
+        "total_duration": "12 weeks"
+    }
+
+
+def _create_dup_week(week_num: int, analysis: Dict) -> Dict[str, Any]:
+    """Create a DUP week with heavy/medium/light pattern."""
+    days = _get_available_days(analysis)
+    sessions = []
+
+    intensity_pattern = {
+        "monday": "heavy",
+        "wednesday": "medium",
+        "friday": "light"
+    }
+
+    for day in days:
+        if day in intensity_pattern:
+            intensity = intensity_pattern[day]
+            sessions.append(_create_dup_session(day, intensity, analysis))
+
+    return {
+        "week_number": week_num,
+        "sessions": sessions,
+        "pattern": "heavy/medium/light",
+        "focus": "Variation in intensity for adaptation"
+    }
+
+
+def _create_dup_session(day: str, intensity: str, analysis: Dict) -> Dict[str, Any]:
+    """Create a single DUP session."""
+    intensity_params = {
+        "heavy": {"percent": 0.85, "reps": "3-5", "rest": "3-5 min"},
+        "medium": {"percent": 0.75, "reps": "6-8", "rest": "2-3 min"},
+        "light": {"percent": 0.60, "reps": "10-12", "rest": "1-2 min"}
+    }
+
+    params = intensity_params[intensity]
+    exercises = _get_exercises_for_dup(params)
+
+    return {
+        "day": day,
+        "intensity": intensity,
+        "exercises": exercises,
+        "warmup": "5-10 min light cardio + dynamic stretching",
+        "cooldown": "5-10 min stretching"
+    }
+
+
+def _get_exercises_for_dup(params: Dict) -> List[Dict]:
+    """Get exercises for DUP session."""
+    return [
+        {"name": "Squat", "sets": 4, "reps": params["reps"], "percent_1rm": params["percent"], "rest": params["rest"]},
+        {"name": "Bench Press", "sets": 4, "reps": params["reps"], "percent_1rm": params["percent"], "rest": params["rest"]},
+        {"name": "Deadlift", "sets": 3, "reps": params["reps"], "percent_1rm": params["percent"], "rest": params["rest"]}
+    ]
+
+
+def _create_dup_deload_week(week_num: int, analysis: Dict) -> Dict[str, Any]:
+    """Create a deload week for DUP."""
+    days = _get_available_days(analysis)
+    sessions = []
+
+    for day in days:
+        if day in ["monday", "wednesday", "friday"]:
+            sessions.append({
+                "day": day,
+                "intensity": "light",
+                "is_deload": True,
+                "exercises": _get_exercises_for_dup({"percent": 0.60, "reps": "8-10", "rest": "2 min"}),
+                "note": "Reduce volume, focus on technique"
+            })
+
+    return {
+        "week_number": week_num,
+        "is_deload": True,
+        "sessions": sessions,
+        "deload_reduction": 0.40
+    }
+
+
+def _get_dup_progression_rules() -> Dict[str, str]:
+    """Get progression rules for DUP."""
+    return {
+        "weekly_progression": "Increase heavy day load by 2.5-5 lbs when target reps achieved",
+        "medium_day_adjustment": "Maintain at ~80% of heavy day load",
+        "light_day_adjustment": "Maintain at ~60% of heavy day load",
+        "deload_frequency": "Every 4 weeks",
+        "deload_protocol": "Reduce all session loads by 40%, maintain volume"
+    }
 
 
 def build_block_program(analysis: Dict[str, Any]) -> Dict[str, Any]:
