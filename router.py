@@ -7,6 +7,10 @@ from methodologies.shared_utils import (
     extract_constraints,
     detect_safety_flags
 )
+import methodologies.strength_training as strength_training
+import methodologies.running_training as running_training
+import methodologies.recovery as recovery
+import methodologies.general as general
 
 class TrainingAdvisorRouter:
     """Main orchestrator for training program generation."""
@@ -58,3 +62,41 @@ class TrainingAdvisorRouter:
             return "running"
         else:
             return "general"
+
+    def process_request(self, user_input: str) -> Dict[str, Any]:
+        """Main entry point for processing training program requests."""
+        self.session["iteration_count"] += 1
+
+        # Analyze input
+        analysis = self.analyze_input(user_input)
+
+        # Select methodology
+        methodology = self._select_methodology(analysis)
+
+        # Route to appropriate methodology
+        if methodology == "strength":
+            program = strength_training.generate_strength_program(analysis)
+        elif methodology == "running":
+            program = running_training.generate_running_program(analysis)
+        elif methodology == "recovery":
+            program = recovery.generate_recovery_plan(analysis)
+        else:
+            program = general.generate_general_program(analysis)
+
+        # Update session history
+        self.session["program_history"].append({
+            "iteration": self.session["iteration_count"],
+            "timestamp": datetime.now().isoformat(),
+            "methodology": methodology,
+            "program_summary": {
+                "type": program.get("type"),
+                "goal": analysis.get("goal")
+            }
+        })
+
+        return {
+            "program": program,
+            "session_id": self.session_id,
+            "iteration": self.session["iteration_count"],
+            "analysis": analysis
+        }

@@ -54,3 +54,18 @@ def test_select_methodology_for_recovery_priority():
     analysis = {"goal": "strength", "flags": ["recovery_concern"]}
     methodology = router._select_methodology(analysis)
     assert methodology == "recovery"
+
+def test_process_request_generates_program():
+    router = TrainingAdvisorRouter()
+    result = router.process_request("I'm a beginner wanting to get stronger")
+
+    assert "program" in result
+    assert result["program"]["type"] == "strength"
+    assert "session_id" in result
+
+def test_process_request_updates_session():
+    router = TrainingAdvisorRouter()
+    result = router.process_request("I want to run a marathon")
+
+    assert router.session["iteration_count"] == 1
+    assert len(router.session["program_history"]) == 1
