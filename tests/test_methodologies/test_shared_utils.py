@@ -1,5 +1,5 @@
 import pytest
-from methodologies.shared_utils import classify_experience, classify_goal
+from methodologies.shared_utils import classify_experience, classify_goal, extract_constraints
 
 def test_classify_beginner():
     assert classify_experience("I'm new to lifting") == "beginner"
@@ -35,4 +35,23 @@ def test_classify_running_goals():
 def test_classify_general_fitness():
     assert classify_goal("just get fit") == "general"
     assert classify_goal("overall health") == "general"
+
+def test_extract_time_constraint():
+    result = extract_constraints("I can train 3 days per week")
+    assert result["time_available"] == "3 days per week"
+
+def test_extract_equipment_constraint():
+    result = extract_constraints("I have dumbbells and a bench")
+    assert "dumbbell" in result["equipment"]
+    assert "bench" in result["equipment"]
+
+def test_extract_health_constraints():
+    result = extract_constraints("I have a bad shoulder")
+    assert "shoulder" in result.get("health_conditions", [])
+
+def test_no_constraints_returns_empty():
+    result = extract_constraints("I want to get stronger")
+    assert result["time_available"] is None
+    assert result["equipment"] == []
+    assert result["health_conditions"] == []
 

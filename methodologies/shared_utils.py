@@ -63,3 +63,35 @@ def classify_goal(user_input: str) -> str:
     return "general"
 
 
+def extract_constraints(user_input: str) -> Dict[str, any]:
+    """Extract training constraints from user input."""
+    user_input_lower = user_input.lower()
+
+    constraints = {
+        "time_available": None,
+        "equipment": [],
+        "health_conditions": []
+    }
+
+    # Extract time availability
+    time_pattern = r"(\d+)\s*(days?|times?|sessions?)\s*(per week|weekly|a week)"
+    time_match = re.search(time_pattern, user_input_lower)
+    if time_match:
+        constraints["time_available"] = f"{time_match.group(1)} days per week"
+
+    # Extract equipment
+    equipment_keywords = ["barbell", "dumbbell", "bench", "squat rack", "pull-up bar",
+                        "cables", "machine", "kettlebell", "resistance band"]
+    for equipment in equipment_keywords:
+        if equipment in user_input_lower or equipment.replace(" ", "") in user_input_lower.replace(" ", ""):
+            constraints["equipment"].append(equipment)
+
+    # Extract health conditions
+    health_keywords = ["shoulder", "knee", "back", "hip", "ankle", "wrist",
+                     "injury", "pain", "condition"]
+    for keyword in health_keywords:
+        if keyword in user_input_lower:
+            constraints["health_conditions"].append(keyword)
+
+    return constraints
+
