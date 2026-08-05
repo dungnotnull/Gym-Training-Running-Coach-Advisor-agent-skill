@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Training Zones Calculator Schema",
+  "description": "Schema for calculating heart rate and pace training zones based on VDOT score or race time",
+  "type": "object",
+  "definitions": {
+    "vdotInput": {
+      "type": "object",
+      "properties": {
+        "vdot_score": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 80,
+          "description": "VDOT score (20-80 range typical for runners)"
+        }
+      },
+      "required": ["vdot_score"]
+    },
+    "raceTimeInput": {
+      "type": "object",
+      "properties": {
+        "distance": {
+          "type": "string",
+          "enum": ["5k", "10k", "half-marathon", "marathon"],
+          "description": "Race distance"
+        },
+        "time_hours": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Hours portion of race time"
+        },
+        "time_minutes": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 59,
+          "description": "Minutes portion of race time"
+        },
+        "time_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 59,
+          "description": "Seconds portion of race time"
+        }
+      },
+      "required": ["distance", "time_hours", "time_minutes", "time_seconds"]
+    },
+    "trainingZone": {
+      "type": "object",
+      "properties": {
+        "zone_name": {
+          "type": "string",
+          "description": "Name of the training zone"
+        },
+        "zone_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Zone number (1-5)"
+        },
+        "vo2max_range": {
+          "type": "object",
+          "properties": {
+            "min_percent": {
+              "type": "number",
+              "minimum": 50,
+              "maximum": 100
+            },
+            "max_percent": {
+              "type": "number",
+              "minimum": 50,
+              "maximum": 100
+            }
+          },
+          "required": ["min_percent", "max_percent"]
+        },
+        "heart_rate_range": {
+          "type": "object",
+          "properties": {
+            "min_bpm": {
+              "type": "number",
+              "minimum": 100,
+              "maximum": 220
+            },
+            "max_bpm": {
+              "type": "number",
+              "minimum": 100,
+              "maximum": 220
+            }
+          },
+          "required": ["min_bpm", "max_bpm"]
+        },
+        "pace_range": {
+          "type": "object",
+          "properties": {
+            "min_pace": {
+              "type": "string",
+              "description": "Minimum pace as mm:ss/km"
+            },
+            "max_pace": {
+              "type": "string",
+              "description": "Maximum pace as mm:ss/km"
+            }
+          },
+          "required": ["min_pace", "max_pace"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of when to use this zone"
+        }
+      },
+      "required": ["zone_name", "zone_number", "vo2max_range", "heart_rate_range", "pace_range", "description"]
+    }
+  },
+  "properties": {
+    "input_type": {
+      "type": "string",
+      "enum": ["vdot", "race_time"],
+      "description": "Type of input provided"
+    },
+    "vdot_input": {
+      "$ref": "#/definitions/vdotInput"
+    },
+    "race_time_input": {
+      "$ref": "#/definitions/raceTimeInput"
+    },
+    "max_heart_rate": {
+      "type": "number",
+      "minimum": 120,
+      "maximum": 220,
+      "description": "Maximum heart rate (optional, defaults to age-based formula)"
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/trainingZone"
+      },
+      "minItems": 5,
+      "maxItems": 5,
+      "description": "Array of 5 training zones"
+    }
+  },
+  "required": ["input_type", "zones"],
+  "oneOf": [
+    {"required": ["vdot_input"]},
+    {"required": ["race_time_input"]}
+  ]
+}
