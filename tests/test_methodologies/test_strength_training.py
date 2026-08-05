@@ -3,7 +3,8 @@
 import pytest
 from methodologies.strength_training import (
     build_linear_program,
-    build_undulating_program
+    build_undulating_program,
+    build_block_program
 )
 
 
@@ -175,3 +176,79 @@ def test_undulating_program_intensity_parameters():
 
     # Heavy should be higher intensity than light
     assert heavy_exercise["percent_1rm"] > light_exercise["percent_1rm"]
+
+
+# ============ BLOCK PERIODIZATION TESTS ============
+
+def test_block_program_for_advanced():
+    """Test that block periodization generates correct structure for advanced."""
+    analysis = {
+        "experience_level": "advanced",
+        "goal": "strength",
+        "constraints": {"time_available": "5 days per week"}
+    }
+    program = build_block_program(analysis)
+
+    assert program["periodization_model"] == "block"
+    assert len(program["blocks"]) == 3
+    assert program["blocks"][0]["type"] == "accumulation"
+    assert program["blocks"][2]["type"] == "realization"
+
+
+def test_block_program_sequential_focus():
+    """Test that block program has sequential training focus."""
+    analysis = {"experience_level": "advanced", "goal": "strength"}
+    program = build_block_program(analysis)
+
+    # Each block should have different focus
+    assert program["blocks"][0]["focus"] != program["blocks"][1]["focus"]
+    assert program["blocks"][1]["focus"] != program["blocks"][2]["focus"]
+
+
+def test_block_program_accumulation_block():
+    """Test that accumulation block has high volume, low intensity."""
+    analysis = {"experience_level": "advanced", "goal": "strength"}
+    program = build_block_program(analysis)
+
+    accumulation = program["blocks"][0]
+
+    assert accumulation["type"] == "accumulation"
+    assert accumulation["volume"] == "high"
+    assert accumulation["intensity"] == "low to moderate"
+
+
+def test_block_program_realization_block():
+    """Test that realization block has low volume, high intensity."""
+    analysis = {"experience_level": "advanced", "goal": "strength"}
+    program = build_block_program(analysis)
+
+    realization = program["blocks"][2]
+
+    assert realization["type"] == "realization"
+    assert realization["volume"] == "low"
+    assert realization["intensity"] == "high"
+
+
+def test_block_program_duration():
+    """Test that each block is 4 weeks."""
+    analysis = {"experience_level": "advanced", "goal": "strength"}
+    program = build_block_program(analysis)
+
+    for block in program["blocks"]:
+        assert block["duration"] == "4 weeks"
+        assert len(block["weeks"]) == 4
+
+
+def test_block_program_exercises_progression():
+    """Test that exercises progress from accumulation to realization."""
+    analysis = {"experience_level": "advanced", "goal": "strength"}
+    program = build_block_program(analysis)
+
+    accumulation_exercise = program["blocks"][0]["weeks"][0]["exercises"][0]
+    realization_exercise = program["blocks"][2]["weeks"][0]["exercises"][0]
+
+    # Realization should have higher intensity (lower reps) than accumulation
+    realization_reps = int(realization_exercise["reps"])
+    accumulation_reps = int(accumulation_exercise["reps"].split("-")[0])
+
+    assert realization_reps < accumulation_reps

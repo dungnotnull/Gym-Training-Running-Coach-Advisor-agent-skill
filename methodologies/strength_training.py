@@ -336,9 +336,135 @@ def _get_dup_progression_rules() -> Dict[str, str]:
 
 
 def build_block_program(analysis: Dict[str, Any]) -> Dict[str, Any]:
-    """Build block periodization program for advanced athletes.
+    """Build block periodization program for advanced lifters.
 
-    Block periodization focuses on specific training qualities in concentrated blocks.
-    Placeholder for future implementation.
+    Block periodization concentrates training effects in sequential blocks:
+    1. Accumulation block: High volume, low intensity for work capacity
+    2. Transmutation block: Convert to specific strength qualities
+    3. Realization block: Maximize specific performance with peak intensity
+
+    This allows advanced athletes to achieve high-level specificity in training.
     """
-    return {"type": "block", "status": "placeholder"}
+    blocks = []
+
+    blocks.append(_create_accumulation_block(1, analysis))
+    blocks.append(_create_transmutation_block(2, analysis))
+    blocks.append(_create_realization_block(3, analysis))
+
+    return {
+        "type": "strength",
+        "periodization_model": "block",
+        "experience_level": "advanced",
+        "goal": analysis.get("goal", "strength"),
+        "blocks": blocks,
+        "total_duration": "12 weeks",
+        "progression_rules": _get_block_progression_rules(),
+        "block_structure": "accumulation -> transmutation -> realization"
+    }
+
+
+def _create_accumulation_block(block_num: int, analysis: Dict) -> Dict[str, Any]:
+    """Create accumulation block."""
+    weeks = []
+    for week in range(1, 5):
+        weeks.append({
+            "week_number": week,
+            "focus": "volume",
+            "intensity": "moderate",
+            "exercises": _get_accumulation_exercises(),
+            "sessions_per_week": len(_get_available_days(analysis))
+        })
+
+    return {
+        "block_number": block_num,
+        "type": "accumulation",
+        "duration": "4 weeks",
+        "weeks": weeks,
+        "focus": "Build work capacity",
+        "volume": "high",
+        "intensity": "low to moderate"
+    }
+
+
+def _create_transmutation_block(block_num: int, analysis: Dict) -> Dict[str, Any]:
+    """Create transmutation block."""
+    weeks = []
+    for week in range(1, 5):
+        weeks.append({
+            "week_number": week + 4,
+            "focus": "strength conversion",
+            "intensity": "high",
+            "exercises": _get_transmutation_exercises(),
+            "sessions_per_week": len(_get_available_days(analysis))
+        })
+
+    return {
+        "block_number": block_num,
+        "type": "transmutation",
+        "duration": "4 weeks",
+        "weeks": weeks,
+        "focus": "Convert to specific strength",
+        "volume": "moderate",
+        "intensity": "moderate to high"
+    }
+
+
+def _create_realization_block(block_num: int, analysis: Dict) -> Dict[str, Any]:
+    """Create realization block."""
+    weeks = []
+    for week in range(1, 5):
+        weeks.append({
+            "week_number": week + 8,
+            "focus": "maximal strength",
+            "intensity": "very high",
+            "exercises": _get_realization_exercises(),
+            "sessions_per_week": len(_get_available_days(analysis))
+        })
+
+    return {
+        "block_number": block_num,
+        "type": "realization",
+        "duration": "4 weeks",
+        "weeks": weeks,
+        "focus": "Maximize specific performance",
+        "volume": "low",
+        "intensity": "high"
+    }
+
+
+def _get_accumulation_exercises() -> List[Dict]:
+    """Get exercises for accumulation block (high volume, low intensity)."""
+    return [
+        {"name": "Squat", "sets": 4, "reps": "8-10", "percent_1rm": 0.70},
+        {"name": "Bench Press", "sets": 4, "reps": "10", "percent_1rm": 0.65},
+        {"name": "Deadlift", "sets": 4, "reps": "6-8", "percent_1rm": 0.70},
+        {"name": "Rows", "sets": 4, "reps": "12", "percent_1rm": 0.60}
+    ]
+
+
+def _get_transmutation_exercises() -> List[Dict]:
+    """Get exercises for transmutation block (moderate volume, moderate intensity)."""
+    return [
+        {"name": "Squat", "sets": 5, "reps": "5", "percent_1rm": 0.80},
+        {"name": "Bench Press", "sets": 5, "reps": "5", "percent_1rm": 0.80},
+        {"name": "Deadlift", "sets": 4, "reps": "4", "percent_1rm": 0.80}
+    ]
+
+
+def _get_realization_exercises() -> List[Dict]:
+    """Get exercises for realization block (low volume, high intensity)."""
+    return [
+        {"name": "Squat", "sets": 3, "reps": "3", "percent_1rm": 0.90},
+        {"name": "Bench Press", "sets": 3, "reps": "3", "percent_1rm": 0.90},
+        {"name": "Deadlift", "sets": 2, "reps": "2-3", "percent_1rm": 0.90}
+    ]
+
+
+def _get_block_progression_rules() -> Dict[str, str]:
+    """Get progression rules for block periodization."""
+    return {
+        "accumulation_progression": "Increase volume first, then intensity",
+        "transmutation_progression": "Focus on intensity increases",
+        "realization_progression": "Peak at specific weights",
+        "deload_between_blocks": "1 week reduced volume between blocks"
+    }
