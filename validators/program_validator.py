@@ -18,7 +18,7 @@ def validate_program(program: Dict[str, Any]) -> Dict[str, Any]:
     Checks for:
     - Required fields (type, experience_level, weeks)
     - Presence of weeks in program
-    - Intensity progression across weeks
+    - Intensity progression across weeks (for programs with intensity_level)
 
     Args:
         program: Training program dict with type, experience_level, and weeks
@@ -40,15 +40,18 @@ def validate_program(program: Dict[str, Any]) -> Dict[str, Any]:
     if not weeks or len(weeks) == 0:
         issues.append("Program has no weeks")
     else:
-        # Check for progression if more than one week
+        # Check for progression if more than one week and has intensity_level
         if len(weeks) > 1:
-            first_intensity = weeks[0].get("intensity_level")
-            last_intensity = weeks[-1].get("intensity_level")
+            # Only check intensity progression if weeks have intensity_level
+            weeks_with_intensity = [w for w in weeks if "intensity_level" in w]
 
-            # Check if intensity progression exists
-            if first_intensity is not None and last_intensity is not None:
-                if first_intensity == last_intensity:
-                    issues.append("No intensity progression detected")
+            if len(weeks_with_intensity) >= 2:
+                first_intensity = weeks_with_intensity[0]["intensity_level"]
+                last_intensity = weeks_with_intensity[-1]["intensity_level"]
+
+                if first_intensity is not None and last_intensity is not None:
+                    if first_intensity == last_intensity:
+                        issues.append("No intensity progression detected")
 
     return {
         "valid": len(issues) == 0,

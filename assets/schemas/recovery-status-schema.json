@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Recovery Status Assessment Schema",
+  "description": "Schema for assessing athlete recovery status based on subjective and objective markers",
+  "type": "object",
+  "definitions": {
+    "subjectiveMarkers": {
+      "type": "object",
+      "properties": {
+        "sleep_quality": {
+          "type": "string",
+          "enum": ["excellent", "good", "fair", "poor"],
+          "description": "Quality of sleep over past 24-48 hours"
+        },
+        "sleep_hours": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 24,
+          "description": "Hours of sleep obtained"
+        },
+        "mood": {
+          "type": "string",
+          "enum": ["excellent", "good", "neutral", "fatigued", "exhausted", "irritable"],
+          "description": "Current mood state"
+        },
+        "muscle_soreness": {
+          "type": "string",
+          "enum": ["none", "mild", "moderate", "severe"],
+          "description": "Level of muscle soreness (DOMS)"
+        },
+        "joint_pain": {
+          "type": "string",
+          "enum": ["none", "mild", "moderate", "severe"],
+          "description": "Level of joint pain or discomfort"
+        },
+        "motivation": {
+          "type": "string",
+          "enum": ["very_high", "high", "moderate", "low", "very_low"],
+          "description": "Current motivation to train"
+        }
+      },
+      "required": ["sleep_quality", "sleep_hours", "mood", "motivation"]
+    },
+    "objectiveMarkers": {
+      "type": "object",
+      "properties": {
+        "resting_heart_rate": {
+          "type": "number",
+          "minimum": 40,
+          "maximum": 100,
+          "description": "Resting heart rate (beats per minute)"
+        },
+        "rhr_delta": {
+          "type": "number",
+          "description": "Difference from baseline resting heart rate"
+        },
+        "heart_rate_variability": {
+          "type": "number",
+          "description": "HRV if available (ms)"
+        },
+        "performance_trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "declining"],
+          "description": "Recent performance trend"
+        }
+      },
+      "required": ["resting_heart_rate"]
+    },
+    "trainingLoad": {
+      "type": "object",
+      "properties": {
+        "days_hard_training": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 14,
+          "description": "Number of hard training days in past 2 weeks"
+        },
+        "weeks_since_deload": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "Weeks since last deload week"
+        },
+        "acute_chronic_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Acute:chronic workload ratio (if calculated)"
+        }
+      },
+      "required": ["days_hard_training", "weeks_since_deload"]
+    }
+  },
+  "properties": {
+    "assessment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of assessment"
+    },
+    "subjective_markers": {
+      "$ref": "#/definitions/subjectiveMarkers"
+    },
+    "objective_markers": {
+      "$ref": "#/definitions/objectiveMarkers"
+    },
+    "training_load": {
+      "$ref": "#/definitions/trainingLoad"
+    },
+    "recovery_status": {
+      "type": "string",
+      "enum": ["well_recovered", "adequately_recovered", "fatigued", "overreached", "overtrained"],
+      "description": "Overall recovery status classification"
+    },
+    "recommendation": {
+      "type": "string",
+      "description": "Training recommendation based on recovery status"
+    },
+    "risk_factors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Identified risk factors for overtraining"
+    },
+    "suggested_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Suggested actions to improve recovery"
+    },
+    "when_to_seek_help": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Indicators that professional help should be sought"
+    }
+  },
+  "required": ["assessment_date", "subjective_markers", "objective_markers", "recovery_status", "recommendation"]
+}

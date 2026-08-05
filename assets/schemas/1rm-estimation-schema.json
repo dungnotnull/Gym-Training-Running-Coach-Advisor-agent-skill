@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "1RM Estimation Schema",
+  "description": "Schema for estimating one-repetition maximum based on submaximal lifts",
+  "type": "object",
+  "definitions": {
+    "exerciseData": {
+      "type": "object",
+      "properties": {
+        "exercise_name": {
+          "type": "string",
+          "description": "Name of the exercise (e.g., 'squat', 'bench press', 'deadlift')"
+        },
+        "weight_lifted": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Weight lifted in pounds or kilograms"
+        },
+        "reps_performed": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Number of repetitions performed (up to 10 for accurate estimation)"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["lbs", "kg"],
+          "description": "Unit of measurement"
+        }
+      },
+      "required": ["exercise_name", "weight_lifted", "reps_performed", "unit"]
+    },
+    "trainingPercentage": {
+      "type": "object",
+      "properties": {
+        "percentage": {
+          "type": "number",
+          "minimum": 50,
+          "maximum": 100,
+          "description": "Percentage of 1RM"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Weight at this percentage"
+        },
+        "target_reps": {
+          "type": "string",
+          "description": "Target rep range for this percentage"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "Training purpose for this intensity"
+        }
+      },
+      "required": ["percentage", "weight", "target_reps", "purpose"]
+    },
+    "formulaInfo": {
+      "type": "object",
+      "properties": {
+        "formula_name": {
+          "type": "string",
+          "description": "Name of the formula used (e.g., 'Epley', 'Brzycki')"
+        },
+        "accuracy_note": {
+          "type": "string",
+          "description": "Accuracy and limitations of the estimation"
+        }
+      },
+      "required": ["formula_name", "accuracy_note"]
+    }
+  },
+  "properties": {
+    "formula_used": {
+      "$ref": "#/definitions/formulaInfo"
+    },
+    "exercise": {
+      "$ref": "#/definitions/exerciseData"
+    },
+    "estimated_1rm": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Estimated one-repetition maximum"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["high", "moderate", "low"],
+      "description": "Confidence in estimation based on reps performed"
+    },
+    "training_percentages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/trainingPercentage"
+      },
+      "minItems": 1,
+      "description": "Training percentages and corresponding weights"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Any warnings or considerations for this estimation"
+    }
+  },
+  "required": ["formula_used", "exercise", "estimated_1rm", "confidence_level", "training_percentages"]
+}

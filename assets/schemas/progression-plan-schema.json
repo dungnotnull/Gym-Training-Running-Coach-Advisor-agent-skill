@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Progressive Overload Plan Schema",
+  "description": "Schema for generating structured progressive overload training plans",
+  "type": "object",
+  "definitions": {
+    "weekPlan": {
+      "type": "object",
+      "properties": {
+        "week_number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Week number in the program"
+        },
+        "focus": {
+          "type": "string",
+          "description": "Primary focus for this week"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Training sessions for the week"
+        },
+        "total_volume": {
+          "type": "string",
+          "description": "Total training volume for the week"
+        },
+        "target_intensity": {
+          "type": "string",
+          "description": "Target intensity for the week"
+        },
+        "is_deload": {
+          "type": "boolean",
+          "description": "Whether this is a deload week"
+        }
+      },
+      "required": ["week_number", "focus", "sessions", "total_volume", "target_intensity", "is_deload"]
+    },
+    "progressionRule": {
+      "type": "object",
+      "properties": {
+        "condition": {
+          "type": "string",
+          "description": "Condition that must be met for progression"
+        },
+        "action": {
+          "type": "string",
+          "description": "Action to take when condition is met"
+        },
+        "magnitude": {
+          "type": "string",
+          "description": "Magnitude of progression (e.g., '2.5-5 lbs', '5%')"
+        }
+      },
+      "required": ["condition", "action"]
+    },
+    "exerciseProgression": {
+      "type": "object",
+      "properties": {
+        "exercise_name": {
+          "type": "string",
+          "description": "Name of exercise"
+        },
+        "starting_parameters": {
+          "type": "object",
+          "description": "Starting weight, sets, reps"
+        },
+        "progression_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/progressionRule"
+          },
+          "description": "Rules for progressing this exercise"
+        }
+      },
+      "required": ["exercise_name", "starting_parameters", "progression_rules"]
+    }
+  },
+  "properties": {
+    "program_name": {
+      "type": "string",
+      "description": "Name of the training program"
+    },
+    "experience_level": {
+      "type": "string",
+      "enum": ["beginner", "intermediate", "advanced"],
+      "description": "Target experience level"
+    },
+    "primary_goal": {
+      "type": "string",
+      "enum": ["strength", "hypertrophy", "endurance", "general_fitness", "performance"],
+      "description": "Primary training goal"
+    },
+    "program_duration_weeks": {
+      "type": "integer",
+      "minimum": 4,
+      "maximum": 16,
+      "description": "Duration of program in weeks"
+    },
+    "training_frequency": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 7,
+      "description": "Number of training days per week"
+    },
+    "periodization_type": {
+      "type": "string",
+      "enum": ["linear", "undulating", "block", "concurrent"],
+      "description": "Type of periodization used"
+    },
+    "equipment_needed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Equipment required for the program"
+    },
+    "time_commitment_per_session": {
+      "type": "string",
+      "description": "Estimated time per training session"
+    },
+    "weekly_plans": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/weekPlan"
+      },
+      "minItems": 4,
+      "description": "Array of week plans"
+    },
+    "exercise_progressions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/exerciseProgression"
+      },
+      "description": "Detailed progression for each exercise"
+    },
+    "deload_schedule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "week_number": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Scheduled deload weeks"
+    },
+    "progression_criteria": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/progressionRule"
+      },
+      "description": "Criteria for progressing to next phase"
+    },
+    "safety_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Safety notes and warnings"
+    },
+    "form_cues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "General form cues applicable to program"
+    }
+  },
+  "required": [
+    "program_name",
+    "experience_level",
+    "primary_goal",
+    "program_duration_weeks",
+    "training_frequency",
+    "periodization_type",
+    "weekly_plans",
+    "deload_schedule",
+    "progression_criteria"
+  ]
+}
