@@ -1,0 +1,41 @@
+{
+  "system": {
+    "version": "1.0.0",
+    "environment": "production"
+  },
+  "performance": {
+    "token_budget": 3000,
+    "cache_size": 5,
+    "lazy_loading": true
+  },
+  "validation": {
+    "strict_mode": false,
+    "fallback_enabled": true,
+    "safety_first": true
+  },
+  "logging": {
+    "level": "INFO",
+    "structured": true,
+    "include_timestamps": true
+  },
+  "session": {
+    "persistence_enabled": true,
+    "session_dir": ".sessions",
+    "max_history": 10
+  },
+  "hooks": {
+    "before_program_generation": {
+      "enabled": true,
+      "strict_validation": true
+    },
+    "after_program_generation": {
+      "enabled": true,
+      "validation_level": "standard"
+    },
+    "on_error": {
+      "enabled": true,
+      "fallback_enabled": true,
+      "verbose_errors": false
+    }
+  }
+}
