@@ -40,3 +40,21 @@ class TrainingAdvisorRouter:
         self.session["user_profile"] = analysis
 
         return analysis
+
+    def _select_methodology(self, analysis: Dict[str, Any]) -> str:
+        """Select appropriate methodology based on analysis."""
+        # Check for priority flags first
+        if "recovery_concern" in analysis.get("flags", []):
+            return "recovery"
+        if "medical_concern" in analysis.get("flags", []):
+            return "recovery"
+
+        # Route by goal
+        goal = analysis.get("goal", "general")
+
+        if goal in ["strength", "hypertrophy"]:
+            return "strength"
+        elif goal in ["5k", "10k", "half_marathon", "marathon"]:
+            return "running"
+        else:
+            return "general"

@@ -36,3 +36,21 @@ def test_analyze_input_detects_flags():
     analysis = router.analyze_input("I have diabetes and want to get stronger")
 
     assert "medical_concern" in analysis["flags"]
+
+def test_select_methodology_for_strength():
+    router = TrainingAdvisorRouter()
+    analysis = {"goal": "strength", "experience_level": "intermediate"}
+    methodology = router._select_methodology(analysis)
+    assert methodology == "strength"
+
+def test_select_methodology_for_running():
+    router = TrainingAdvisorRouter()
+    analysis = {"goal": "marathon", "experience_level": "advanced"}
+    methodology = router._select_methodology(analysis)
+    assert methodology == "running"
+
+def test_select_methodology_for_recovery_priority():
+    router = TrainingAdvisorRouter()
+    analysis = {"goal": "strength", "flags": ["recovery_concern"]}
+    methodology = router._select_methodology(analysis)
+    assert methodology == "recovery"
