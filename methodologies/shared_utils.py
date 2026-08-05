@@ -95,3 +95,33 @@ def extract_constraints(user_input: str) -> Dict[str, any]:
 
     return constraints
 
+
+def detect_safety_flags(user_input: str) -> List[str]:
+    """Detect safety flags requiring special attention."""
+    user_input_lower = user_input.lower()
+    flags = []
+
+    # Medical concerns
+    medical_keywords = ["diabetes", "heart condition", "hypertension", "asthma",
+                       "medical condition", "doctor", "physician", "medication"]
+    if any(keyword in user_input_lower for keyword in medical_keywords):
+        flags.append("medical_concern")
+
+    # Injury flags
+    injury_keywords = ["injury", "injured", "recovering from", "rehab", "physical therapy"]
+    if any(keyword in user_input_lower for keyword in injury_keywords):
+        flags.append("injury")
+
+    # Recovery concerns
+    recovery_keywords = ["exhausted", "overtrained", "fatigue", "burnout",
+                        "tired all the time", "no energy"]
+    if any(keyword in user_input_lower for keyword in recovery_keywords):
+        flags.append("recovery_concern")
+
+    # Eating disorder red flags
+    ed_keywords = ["anorexic", "bulimic", "eating disorder", "lose weight fast"]
+    if any(keyword in user_input_lower for keyword in ed_keywords):
+        flags.append("eating_disorder_concern")
+
+    return flags
+

@@ -1,5 +1,5 @@
 import pytest
-from methodologies.shared_utils import classify_experience, classify_goal, extract_constraints
+from methodologies.shared_utils import classify_experience, classify_goal, extract_constraints, detect_safety_flags
 
 def test_classify_beginner():
     assert classify_experience("I'm new to lifting") == "beginner"
@@ -54,4 +54,20 @@ def test_no_constraints_returns_empty():
     assert result["time_available"] is None
     assert result["equipment"] == []
     assert result["health_conditions"] == []
+
+def test_detect_medical_concern_flag():
+    flags = detect_safety_flags("I have diabetes and want to train")
+    assert "medical_concern" in flags
+
+def test_detect_injury_flag():
+    flags = detect_safety_flags("I'm recovering from a knee injury")
+    assert "injury" in flags
+
+def test_detect_recovery_concern_flag():
+    flags = detect_safety_flags("I've been feeling exhausted lately")
+    assert "recovery_concern" in flags
+
+def test_no_flags_returns_empty():
+    flags = detect_safety_flags("I want to get stronger")
+    assert flags == []
 
